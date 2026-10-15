@@ -162,64 +162,64 @@ cur = conn.cursor()
 # conn.commit()
 
 
-try:
-    cur.execute("""
-        TRUNCATE TABLE
-            consultants,
-            invoices,
-            projects,
-            clients
-        RESTART IDENTITY CASCADE;
-    """)
+# try:
+#     cur.execute("""
+#         TRUNCATE TABLE
+#             consultants,
+#             invoices,
+#             projects,
+#             clients
+#         RESTART IDENTITY CASCADE;
+#     """)
 
-    cur.execute("""
-        INSERT INTO clients (name, industry, region, contract_value, created_date)
-        VALUES
-            ('Acme Corp', 'Retail', 'North', 250000, '2025-01-15'),
-            ('Beta Financial', 'Finance', 'East', 480000, '2025-03-01'),
-            ('Charlie Industries', 'Manufacturing', 'South', 320000, '2025-02-20'),
-            ('Delta Tech', 'Technology', 'West', 600000, '2025-04-10'),
-            ('Epsilon Solutions', 'Healthcare', 'Central', 420000, '2025-05-01')
-    """)
+#     cur.execute("""
+#         INSERT INTO clients (name, industry, region, contract_value, created_date)
+#         VALUES
+#             ('Acme Corp', 'Retail', 'North', 250000, '2025-01-15'),
+#             ('Beta Financial', 'Finance', 'East', 480000, '2025-03-01'),
+#             ('Charlie Industries', 'Manufacturing', 'South', 320000, '2025-02-20'),
+#             ('Delta Tech', 'Technology', 'West', 600000, '2025-04-10'),
+#             ('Epsilon Solutions', 'Healthcare', 'Central', 420000, '2025-05-01')
+#     """)
 
-    cur.execute("""
-        INSERT INTO projects
-            (client_id, name, status, start_date, end_date, budget)
-        VALUES
-            (1, 'Project Alpha', 'Completed', '2025-01-15', '2025-06-15', 250000),
-            (2, 'Project Beta', 'Active', '2025-03-01', '2025-08-01', 480000),
-            (3, 'Project Charlie', 'On-Hold', '2025-02-20', '2025-07-20', 320000),
-            (4, 'Project Delta', 'Active', '2025-04-10', '2025-09-10', 600000),
-            (5, 'Project Epsilon', 'Completed', '2025-05-01', '2025-10-01', 420000)
-    """)
+#     cur.execute("""
+#         INSERT INTO projects
+#             (client_id, name, status, start_date, end_date, budget)
+#         VALUES
+#             (1, 'Project Alpha', 'Completed', '2025-01-15', '2025-06-15', 250000),
+#             (2, 'Project Beta', 'Active', '2025-03-01', '2025-08-01', 480000),
+#             (3, 'Project Charlie', 'On-Hold', '2025-02-20', '2025-07-20', 320000),
+#             (4, 'Project Delta', 'Active', '2025-04-10', '2025-09-10', 600000),
+#             (5, 'Project Epsilon', 'Completed', '2025-05-01', '2025-10-01', 420000)
+#     """)
 
-    cur.execute("""
-        INSERT INTO consultants
-            (name, grade, specialisation, project_id, billable_hours)
-        VALUES
-            ('John Brown', 'Senior', 'Software Engineer', 1, 160),
-            ('Erica Smith', 'Mid-level', 'Data Analyst', 2, 120),
-            ('Bob Williams', 'Junior', 'Sales Associate', 3, 80),
-            ('Alice Franklin', 'Senior', 'Project Manager', 4, 180),
-            ('Charles Davis', 'Mid-level', 'Marketing Specialist', 5, 100)
-    """)
+#     cur.execute("""
+#         INSERT INTO consultants
+#             (name, grade, specialisation, project_id, billable_hours)
+#         VALUES
+#             ('John Brown', 'Senior', 'Software Engineer', 1, 160),
+#             ('Erica Smith', 'Mid-level', 'Data Analyst', 2, 120),
+#             ('Bob Williams', 'Junior', 'Sales Associate', 3, 80),
+#             ('Alice Franklin', 'Senior', 'Project Manager', 4, 180),
+#             ('Charles Davis', 'Mid-level', 'Marketing Specialist', 5, 100)
+#     """)
 
-    cur.execute("""
-        INSERT INTO invoices
-            (project_id, amount, status, due_date, paid_date)
-        VALUES
-            (1, 250000, 'Paid', '2025-06-15', '2025-06-14'),
-            (2, 480000, 'Pending', '2025-08-01', NULL),
-            (3, 320000, 'Overdue', '2025-07-20', NULL),
-            (4, 600000, 'Pending', '2025-09-10', NULL),
-            (5, 420000, 'Paid', '2025-10-01', '2025-09-25')
-    """)
+#     cur.execute("""
+#         INSERT INTO invoices
+#             (project_id, amount, status, due_date, paid_date)
+#         VALUES
+#             (1, 250000, 'Paid', '2025-06-15', '2025-06-14'),
+#             (2, 480000, 'Pending', '2025-08-01', NULL),
+#             (3, 320000, 'Overdue', '2025-07-20', NULL),
+#             (4, 600000, 'Pending', '2025-09-10', NULL),
+#             (5, 420000, 'Paid', '2025-10-01', '2025-09-25')
+#     """)
 
-    conn.commit()
+#     conn.commit()
 
-except Exception:
-    conn.rollback()
-    raise
+# except Exception:
+#     conn.rollback()
+#     raise
 #Continue for projects, consultants, invoices — make sure foreign keys reference real IDs
 
 cur.execute("""
