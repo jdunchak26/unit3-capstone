@@ -62,6 +62,10 @@ def generate_sql(question: str) -> str:
         f"{SCHEMA_CONTEXT}\n\n"
         f"Generate a SQL query to answer: {question}\n\n"
         "Return ONLY the SQL query. No explanation, no markdown, no backticks."
+        "Use case-insensitive matching for all text comparisons. "
+        "For example, use LOWER(status) = LOWER('Active') "
+        "instead of status = 'Active'. "
+        "Do not assume that capitalization in the question matches the database."
     )
     result = invoke_claude(prompt, max_tokens=512)
     sql = result["text"].strip()
@@ -124,3 +128,22 @@ def run_sql_agent(question: str) -> dict:
         "sources": [f"SQL: {result['sql']}"],
         "metadata": {"validation": result["validation"], "token_usage": result["token_usage"]},
     }
+
+##Question testing
+
+if __name__ == "__main__":
+    test_questions = [
+        "how many clients do we have?",
+        "What project has the highest budget?",
+        "how many senior consultants are there?",
+        "how many invoices are overdue?",
+    ]
+
+    for question in test_questions:
+        result = run_sql_agent(question)
+
+        print(f"\nQ: {question}")
+        print(f"Success: {result['success']}")
+        print(f"Answer: {result['answer']}")
+        print(f"Sources: {result['sources']}")
+        print(f"Metadata: {result['metadata']}")
