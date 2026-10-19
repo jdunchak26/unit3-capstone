@@ -3,7 +3,7 @@ lambda_handler.py -- wraps the orchestrator in the format Lambda expects.
 """
 import json
 from orchestrator import build_orchestrator
-from tokenomics_logger import run_traced_query
+from agents.tokenomics_logger import run_traced_query
 
 orchestrator = build_orchestrator()
 

@@ -1,12 +1,14 @@
-"""
-tokenomics_logger.py -- structured logging and full-chain tracing for the
-orchestrator, kept separate from orchestrator.py itself, the same way
-bedrock_client.py stays separate from every agent that calls it.
-"""
 import json
 import uuid
 from datetime import datetime
-from orchestrator import route_question
+from shared_tool_registry import route_question
+
+##sonnet 4.6
+#pricing 
+
+# $3 per 1  million input tokens (per token cost is $0.000003)
+# $15 per 1 million output tokens (per token cost is $0.000015)
+
 
 
 def log_decision(stage: str, question: str, details: dict):
@@ -27,12 +29,12 @@ def route_question_logged(state):
     return result
 
 
-def run_traced_query(orchestrator, question: str) -> dict:
+def run_traced_query(shared_tool_registry, question: str) -> dict:
     trace_id = str(uuid.uuid4())[:8]
 
     log_decision("query_start", question, {"trace_id": trace_id})
 
-    result = orchestrator.invoke({
+    result = shared_tool_registry.invoke({
         "question": question, "route": None, "sql_result": None,
         "retrieval_result": None, "final_answer": None, "token_usage": None
     })
@@ -48,7 +50,11 @@ def run_traced_query(orchestrator, question: str) -> dict:
         "route": result["route"],
         "sql_validation": result.get("sql_result", {}).get("metadata", {}).get("validation") if result.get("sql_result") else None,
         "retrieval_chunk_count": len(result.get("retrieval_result", {}).get("sources", [])) if result.get("retrieval_result") else None,
-        "token_usage": result.get("token_usage")
+        "token_usage": result.get("token_usage"),
+        "cost_estimate": {
+            "input_cost": (result.get("token_usage", {}).get("input", 0) * 0.000003),
+            "output_cost": (result.get("token_usage", {}).get("output", 0) * 0.000015)
+        }
     })
 
     return result

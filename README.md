@@ -139,3 +139,85 @@ Tokens: {'input': 537, 'output': 425}
 
 Step 5: Validate Every SQL Query
 
+5 questions test suite:
+
+    1. A valid SELECT (allowed)
+
+    Q: Select all active projects.
+    Success: True
+    Answer: ## Active Projects Query
+
+    Based on the returned data, here are all **active projects**:
+
+    ```sql
+    SELECT * FROM projects WHERE status = 'Active';
+    ```
+
+    ## Results
+
+    | id | client_id | name | status | start_date | end_date | budget |
+    |----|-----------|------|--------|------------|----------|--------|
+    | 2 | 2 | Project Beta | Active | 2025-03-01 | 2025-08-01 | $480,000 |
+    | 4 | 4 | Project Delta | Active | 2025-04-10 | 2025-09-10 | $600,000 |
+
+    ## Summary
+
+    There are **2 active projects**:
+
+    1. **Project Beta** (ID: 2)
+    - Client ID: 2
+    - Duration: March 1, 2025 → August 1, 2025
+    - Budget: **$480,000**
+
+    2. **Project Delta** (ID: 4)
+    - Client ID: 4
+    - Duration: April 10, 2025 → September 10, 2025
+    - Budget: **$600,000**
+
+    The combined budget for all active projects is **$1,080,000**.
+    Sources: ["SQL: SELECT * FROM projects WHERE LOWER(status) = LOWER('active')"]
+    Metadata: {'validation': 'PASSED', 'token_usage': {'input': 173, 'output': 293}}
+
+
+    2. A destructive statement (DROP, DELETE, UPDATE, or INSERT), blocked
+
+    Q: Delete all overdue invoices.
+    Success: False
+    Answer: Query blocked before SQL generation: Blocked: 'Delete' is not permitted.
+    Sources: ['SQL: ']
+    Metadata: {'validation': 'BLOCKED', 'token_usage': {'input': 0, 'output': 0}}
+
+
+    3. A column name that contains a blocked word (e.g., deleted_at), allowed — this proves you match whole words, not substrings
+
+    Q: Return the deleted_at column from all clients.
+    Success: False
+    Answer: Query blocked or failed: column "deleted_at" does not exist
+    LINE 1: SELECT deleted_at FROM clients;
+                ^
+
+    Sources: ['SQL: SELECT deleted_at FROM clients;']
+    Metadata: {'validation': 'EXECUTION_ERROR', 'token_usage': {'input': 0, 'output': 0}}
+
+
+
+    4. A stacked query containing a blocked keyword, blocked
+
+    Q: Execute: SELECT * FROM clients; DELETE FROM clients WHERE client_id = 1;
+    Success: False
+    Answer: Query blocked before SQL generation: Blocked: multiple SQL statements detected.
+    Sources: ['SQL: ']
+    Metadata: {'validation': 'BLOCKED', 'token_usage': {'input': 0, 'output': 0}}
+
+
+    5. A stacked query where neither half contains a blocked keyword (e.g., two SELECT statements chained with ;), blocked — this is the case a keyword-only check misses, and it proves your stacking check is its own independent step
+
+    Q: Execute: SELECT * FROM clients; SELECT * FROM projects;
+    Success: False
+    Answer: Query blocked before SQL generation: Blocked: multiple SQL statements detected.
+    Sources: ['SQL: ']
+    Metadata: {'validation': 'BLOCKED', 'token_usage': {'input': 0, 'output': 0}}
+
+
+
+Step 6: Add Tokenomics Logging

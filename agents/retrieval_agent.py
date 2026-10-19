@@ -124,20 +124,20 @@ def run_retrieval_agent(question: str) -> dict:
 ##test question
 # making sure it fits the format of run_sql_agent
 
-if __name__ == "__main__":
-    test_questions = [
-        "What information is contained in the indexed documents?",
-        "What is our remote work policy?",
-    ]
+# if __name__ == "__main__":
+#     test_questions = [
+#         "What information is contained in the indexed documents?",
+#         "What is our remote work policy?",
+#     ]
 
-    for question in test_questions:
-        result = run_retrieval_agent(question)
+#     for question in test_questions:
+#         result = run_retrieval_agent(question)
 
-        print(f"\nQuestion: {question}")
-        print(f"Success: {result['success']}")
-        print(f"Answer: {result['answer']}")
-        print(f"Sources: {result['sources']}")
-        print(f"Metadata: {result['metadata']}")
+#         print(f"\nQuestion: {question}")
+#         print(f"Success: {result['success']}")
+#         print(f"Answer: {result['answer']}")
+#         print(f"Sources: {result['sources']}")
+#         print(f"Metadata: {result['metadata']}")
 
 
 
