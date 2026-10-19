@@ -1,6 +1,7 @@
 import json
 from shared_tool_registry import build_orchestrator
 from tokenomics_logger import run_traced_query
+import langchain_protocol
 
 orchestrator = build_orchestrator()
 

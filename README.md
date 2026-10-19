@@ -321,3 +321,20 @@ Cost: $0.010026
 
 
 Step 8: Deploy to Lambda
+
+Unfortunately, I ran into an error where langchain_protocol was not recognized and would fail to allow my lambda handler to run. 
+
+""errorMessage": "Unable to import module 'lambda_handler': No module named 'langchain_protocol'", "errorType": "Runtime.ImportModuleError", "requestId": "", "stackTrace": "
+
+
+
+
+
+
+Reflection:
+
+Of the 8 test questions I came up with, the most difficult one for the Orchestrator were the both questions. Sometimes it would hallicunate and reference other documents that were not related to the topic and make up data to try to fill in the gaps about what it thought the answer could potentially be.
+
+However, I will say the most difficult question originally was the question with two sequel queries (one select and one blocked function). I quickly realized that the orchestrator would not be able to properly differentiate for the delete later in the question, and would hypothetically attempt to delete rows. I struggled with this validation problem, but was able to find a working solution to block the query before it even ran. 
+
+In terms of multi-agent systms vs a well scoped single agent, I learned that while multi agent systems can be very powerful, if they are not built properly or well then they can break easily, or provide false information. You have to be very precise and direct with your instructions to them to ensure they are not hallucinating. 
