@@ -131,19 +131,19 @@ def run_sql_agent(question: str) -> dict:
 
 ##Question testing
 
-if __name__ == "__main__":
-    test_questions = [
-        "how many clients do we have?",
-        "What project has the highest budget?",
-        "how many senior consultants are there?",
-        "how many invoices are overdue?",
-    ]
+# if __name__ == "__main__":
+#     test_questions = [
+#         "how many clients do we have?",
+#         "What project has the highest budget?",
+#         "how many senior consultants are there?",
+#         "how many invoices are overdue?",
+#     ]
 
-    for question in test_questions:
-        result = run_sql_agent(question)
+#     for question in test_questions:
+#         result = run_sql_agent(question)
 
-        print(f"\nQ: {question}")
-        print(f"Success: {result['success']}")
-        print(f"Answer: {result['answer']}")
-        print(f"Sources: {result['sources']}")
-        print(f"Metadata: {result['metadata']}")
+#         print(f"\nQ: {question}")
+#         print(f"Success: {result['success']}")
+#         print(f"Answer: {result['answer']}")
+#         print(f"Sources: {result['sources']}")
+#         print(f"Metadata: {result['metadata']}")

@@ -54,3 +54,88 @@ Evidence - both must return:
         (lots of text)
     Sources: ['cloud-migration-playbook.pdf', 'cloud-migration-playbook.pdf', 'q2-2026-client-report.pdf', 'retail-supply-chain-case-study.pdf', 'retail-supply-chain-case-study.pdf']
     Metadata: {'chunk_count': 5, 'grounded': True, 'token_usage': {'input': 2337, 'output': 315}}
+
+
+
+3. Build a shared tool registry
+
+Definitions
+
+SQL Agent:
+        "Use this tool to query the relational database for structured business "
+        "information about clients, projects, consultants, invoices, and related "
+        "operational records. It is appropriate for questions requiring exact "
+        "counts, totals, averages, rankings, filters, status checks, date-based "
+        "comparisons, or other calculations that should be derived from database "
+        "records. Examples include the number of active projects, total invoice "
+        "value for a client, consultants assigned to a project, overdue invoices."
+        "Do not use this tool for policies, procedures, qualitative"
+        "guidance, document-based explanations, or project narratives that are "
+        "not represented as structured database fields."
+
+Retrieval Agent:
+        "Use this tool to search indexed documents for unstructured or "
+        "semi-structured information, including policies, procedures, guidance, "
+        "onboarding materials, expense rules, controls, case studies, and project "
+        "narratives. It is appropriate for questions asking what a policy says, "
+        "how a process works, what steps are required, or what information is "
+        "described in source documents. The tool should return a grounded answer "
+        "supported by retrieved document chunks, along with source references and "
+        "grounding metadata. It may also provide a clear refusal when the indexed "
+        "documents do not contain enough information to answer reliably."
+        "Do not use this tool for exact counts, totals, rankings, database lookups, or "
+        "calculations that should be performed against structured relational data."
+
+Testing results:
+
+Q: How many consultants do we have on active projects?
+Suggested tool: sql_agent
+
+Q: What is our expense reimbursement policy?
+Suggested tool: retrieval_agent
+
+Q: How many active projects do we have and what's our onboarding process?
+Suggested tool: Both tools are needed for this question:
+
+
+
+Step 4: Build the LangGraph Orchestrator (in the shared tool registry file as well for ease of access)
+
+Questions:
+
+How many active projects do we have? (SQL)
+
+Route: sql
+Answer: ## Answer
+We currently have **2 active projects**.
+**Source:**
+- **SQL Agent** — Query: `SELECT COUNT(*) AS active_project_count FROM projects WHERE LOWER(status) = LOWER('active')`
+Tokens: {'input': 95, 'output': 56}
+
+What is our remote work policy? (Retrieval)
+Route: retrieval
+Answer: ## Acme Consulting Remote Work Policy
+
+Here is a summary of our remote work policy, based on information retrieved by the **Retrieval Agent** from **remote-work-policy.pdf** and **q2-2026-client-report.pdf**:
+
+**Sources:** `remote-work-policy.pdf`
+
+Tokens: {'input': 484, 'output': 543}
+
+
+How many active projects do we have, and what's our remote work policy? (Both)
+Q: How many active projects do we have, and what is our remote work policy?
+Route: both
+Answer: ## Answer
+
+Here is a combined response using information from both agents:
+(Long answer)
+
+
+| Active Projects | SQL Agent | `projects` database table |
+| Remote Work Policy | Retrieval Agent | `remote-work-policy.pdf` |
+Tokens: {'input': 537, 'output': 425}
+
+
+Step 5: Validate Every SQL Query
+
