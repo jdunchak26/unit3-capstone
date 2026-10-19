@@ -3,14 +3,10 @@ from dotenv import load_dotenv
 from bedrock_client import invoke_claude
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Optional
+from tokenomics_logger import invoke_claude_logged, trace_context
 import re
 
 load_dotenv()
-
-# ── Part 1: Standardized Agent Wrappers ─────────────────────────────────────
-# These wrap the actual agent logic from Day 2 (sql_agent.py) and
-# Day 3 (retrieval_agent_solution.py), reshaping their output into the
-# shared {success, answer, sources, metadata} contract.
 
 def run_sql_agent(question: str) -> dict:
     from sql_agent import run_sql_agent as sql_agent_runner
@@ -87,9 +83,6 @@ TOOL_REGISTRY = {
 #     return TOOL_REGISTRY[tool_name]["function"](question)
 
 
-
-
-###Langgraph
 class OrchestratorState(TypedDict):
     question: str
     route: Optional[str]
@@ -97,6 +90,14 @@ class OrchestratorState(TypedDict):
     retrieval_result: Optional[dict]
     final_answer: Optional[str]
     token_usage: Optional[dict]
+    trace_id: Optional[str]
+
+def _trace_for(state: OrchestratorState):
+    return trace_context(
+        state.get("trace_id") or "standalone",
+        state["question"],
+    )
+
 
 STOP_WORDS = {
     "a", "an", "and", "are", "as", "at", "be", "by", "do", "for",
@@ -183,21 +184,25 @@ def route_question(state: OrchestratorState) -> OrchestratorState:
 
 
 
-
-
-
 def call_sql_agent(state: OrchestratorState) -> OrchestratorState:
     if state["route"] not in ["sql", "both"]:
         return state
-    result = run_sql_agent(state["question"])
+
+    with _trace_for(state):
+        result = run_sql_agent(state["question"])
+
     return {**state, "sql_result": result}
 
 
 def call_retrieval_agent(state: OrchestratorState) -> OrchestratorState:
     if state["route"] not in ["retrieval", "both"]:
         return state
-    result = run_retrieval_agent(state["question"])
+
+    with _trace_for(state):
+        result = run_retrieval_agent(state["question"])
+
     return {**state, "retrieval_result": result}
+
 
 
 def synthesise(state: OrchestratorState) -> OrchestratorState:
@@ -214,7 +219,7 @@ def synthesise(state: OrchestratorState) -> OrchestratorState:
     if not context:
         return {
             **state,
-            "final_answer": "I was unable to find relevant information to answer this question.",
+            "final_answer": "I was unable to find relevant information to answer this question. Please review the question and try again.",
             "token_usage": {"input": 0, "output": 0}
         }
 
@@ -224,7 +229,12 @@ def synthesise(state: OrchestratorState) -> OrchestratorState:
         f"Question: {state['question']}\n\n"
         f"Information:\n{context}"
     )
-    result = invoke_claude(prompt, max_tokens=800)
+    with _trace_for(state):
+        result = invoke_claude_logged(
+        component="synthesis",
+        prompt=prompt,
+        max_tokens=800,
+    )
 
     return {
         **state,

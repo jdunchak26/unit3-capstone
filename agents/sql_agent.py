@@ -1,22 +1,8 @@
-"""
-agents/sql_agent.py -- validated SQL Query Agent, wrapped to the standard
-{success, answer, sources, metadata} interface from the Shared Tool Registry
-lab.
-
-NOTE ON STRUCTURE: earlier in this program, run_sql_agent() reached into a
-sibling repo via sys.path.append("../add-validation-layer-lab") to import
-validated_sql_agent. That works for local development, where both repos'
-directories physically exist side by side -- it does NOT work in a deployed
-Lambda package, which only has access to what's actually bundled inside the
-zip. Every piece of logic (generate_sql, validate_sql, execute_query_safely)
-is inlined directly here instead, so this file is genuinely self-contained
-and deployable on its own.
-"""
 import os
 import re
 import psycopg2
 from dotenv import load_dotenv
-from bedrock_client import invoke_claude
+from tokenomics_logger import invoke_claude_logged
 load_dotenv()
 
 SCHEMA_CONTEXT = """
@@ -44,7 +30,7 @@ def generate_sql(question: str) -> str:
         "instead of status = 'Active'. "
         "Do not assume that capitalization in the question matches the database."
     )
-    result = invoke_claude(prompt, max_tokens=512)
+    result = invoke_claude_logged("sql_generation", prompt, max_tokens=512)
     sql = result["text"].strip()
     return sql.removeprefix("```sql").removeprefix("```").removesuffix("```").strip()
 
@@ -211,7 +197,7 @@ def validated_sql_agent(question: str) -> dict:
         "Do not claim that any rows were inserted, updated, or deleted."
     )
 
-    interpretation = invoke_claude(prompt, max_tokens=500)
+    interpretation = invoke_claude_logged("sql_interpretation", prompt, max_tokens=500)
 
     return {
         "answer": interpretation["text"],

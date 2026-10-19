@@ -1,9 +1,6 @@
-"""
-lambda_handler.py -- wraps the orchestrator in the format Lambda expects.
-"""
 import json
-from orchestrator import build_orchestrator
-from agents.tokenomics_logger import run_traced_query
+from shared_tool_registry import build_orchestrator
+from tokenomics_logger import run_traced_query
 
 orchestrator = build_orchestrator()
 
@@ -28,7 +25,8 @@ def handler(event, context):
                 "answer": result["final_answer"],
                 "route": result["route"],
                 "sql_validation": sql_validation,
-                "token_usage": result.get("token_usage", {})
+                "token_usage": result.get("token_usage", {}),
+                "cost": result.get("cost", {})
             })
         }
     except Exception as e:

@@ -221,3 +221,103 @@ Step 5: Validate Every SQL Query
 
 
 Step 6: Add Tokenomics Logging
+
+Every Claude call is logged:
+
+Example from 2 Queries: 
+
+Query 2: How many clients do we have?
+[LOG] query_start: {"trace_id": "6d02fc7b"}
+[LOG] claude_call: {"component": "sql_generation", "input_cost_usd": 0.000678, "input_tokens": 226, "output_cost_usd": 0.000195, "output_tokens": 13, "status": "success", "total_cost_usd": 0.000873, "trace_id": "6d02fc7b"}
+[LOG] claude_call: {"component": "sql_interpretation", "input_cost_usd": 0.000165, "input_tokens": 55, "output_cost_usd": 0.00024, "output_tokens": 16,"status": "success", "total_cost_usd": 0.000405, "trace_id": "6d02fc7b"}
+[LOG] claude_call: {"component": "synthesis", "input_cost_usd": 0.000255, "input_tokens": 85, "output_cost_usd": 0.00084, "output_tokens": 56, "status": "success", "total_cost_usd": 0.001095, "trace_id": "6d02fc7b"}
+[LOG] query_complete: {"has_final_answer": true, "route": "sql", "trace_id": "6d02fc7b"}
+Route: sql
+Answer: ## Answer: Number of Clients
+
+Based on the data retrieved, you currently have **5 clients**.
+
+
+Query 3: What project has the highest budget?
+[LOG] query_start: {"trace_id": "da86271e"}
+[LOG] claude_call: {"component": "sql_generation", "input_cost_usd": 0.000678, "input_tokens": 226, "output_cost_usd": 0.000285, "output_tokens": 19, "status": "success", "total_cost_usd": 0.000963, "trace_id": "da86271e"}
+[LOG] claude_call: {"component": "sql_interpretation", "input_cost_usd": 0.000216, "input_tokens": 72, "output_cost_usd": 0.000585, "output_tokens": 39, "status": "success", "total_cost_usd": 0.0008010000000000001, "trace_id": "da86271e"}
+[LOG] claude_call: {"component": "retrieval_answer_generation", "input_cost_usd": 0.004854, "input_tokens": 1618, "output_cost_usd": 0.000435, "output_tokens": 29, "status": "success", "total_cost_usd": 0.005288999999999999, "trace_id": "da86271e"}
+[LOG] claude_call: {"component": "synthesis", "input_cost_usd": 0.0006270000000000001, "input_tokens": 209, "output_cost_usd": 0.00222, "output_tokens": 148, "status": "success", "total_cost_usd": 0.002847, "trace_id": "da86271e"}
+[LOG] query_complete: {"has_final_answer": true, "route": "both", "trace_id": "da86271e"}
+Route: both
+Answer: ## Answer
+
+The project with the **highest budget** is **Project Delta**, with a budget of **$600,000**.
+
+
+Ten query summary table:
+Claude usage and cost summary
+| Component | Calls | Input tokens | Output tokens | Total tokens | USD cost | Most tokens |
+|---|---:|---:|---:|---:|---:|---|
+| retrieval_answer_generation | 7 | 15,372 | 1,124 | 16,496 | $0.062976 | Yes |
+| sql_generation | 5 | 1,141 | 124 | 1,265 | $0.005283 |  |
+| sql_interpretation | 5 | 306 | 163 | 469 | $0.003363 |  |
+| synthesis | 10 | 2,423 | 2,370 | 4,793 | $0.042819 |  |
+| **TOTAL — 10 queries** | 27 | 19,242 | 3,781 | 23,023 | $0.114441 | |
+
+Step 7: Test Suite
+
+1. How many active projects do we have?
+
+Route: sql
+Answer: Based on the data retrieved, you currently have **2 active projects**
+Validation: passed
+Cost: $0.002733
+
+2. Which client has the highest contract value? 
+
+Route: sql
+Answer: **Delta Tech** has the highest contract value of **$600,000**
+Validation: passed
+Cost: $0.004485
+
+3. What is our remote work policy?
+
+Route: Retrieval
+Answer: Employees must complete their **90-day probationary period** before being eligible.....
+Validation: Retrieval grounded=True 
+Cost: $0.021876 
+
+4. What does the cloud migration playbook say?
+
+Route: Retrieval
+Answer: The playbook outlines **Acme Consulting's standard approach** to migrating on-premises data infrastructure to the cloud. It is intended for use.....
+Validation: Retrieval grounded=True 
+Cost: $0.020343
+
+5. How many active projects do we have, and what is our remote work policy?
+
+Route: Both
+Answer: Here is a complete answer to both parts of your question, drawing from multiple sources:Projects We currently have 2 active projects....Remote Work Policy Acme Consulting's remote work policy includes the following key elements:**Core Hours:** Employees must be available between **10:00 AM – 3:00 PM** 
+Validation: SQL = PASSED, Retrieval grounded=True 
+Cost: $0.020451
+
+6. How many overdue invoices are there, and what does the supply chain case study say?
+
+Route: Both
+Answer: There are **3 overdue invoices** currently outstanding....Supply Chain Case Study The supply chain case study describes an engagement with a **mid-sized regional grocery retailer** operating....
+Validation: SQL = PASSED, Retrieval grounded=True 
+Cost: $0.017925
+
+7. Execute: Delete Acme Corp from the client table.
+
+Route: SQL
+Answer: I was unable to find relevant information to answer this question. Please review the question and try again."
+Validation: SQL=BLOCKED
+Cost: $0.0000
+
+8. What is the population of Mars?
+
+Route: Neither
+Answer: I was unable to find relevant information to answer this question. Please review the question and try again."
+Validation: Retrieval grounded=TRUE
+Cost: $0.010026
+
+
+Step 8: Deploy to Lambda

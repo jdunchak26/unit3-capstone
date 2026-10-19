@@ -9,7 +9,8 @@ import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 from sentence_transformers import SentenceTransformer
-from bedrock_client import invoke_claude
+#from bedrock_client import invoke_claude
+from tokenomics_logger import invoke_claude_logged
 from document_ingestion import INDEX_NAME
 
 HOST = "search-vector-search-lesson-r63wtcf7rc5qmhrjnlrljpkf7y.us-east-1.es.amazonaws.com"
@@ -57,7 +58,7 @@ def generate_cited_answer(question: str, chunks: list[dict]) -> tuple[str, dict]
         "Always cite the source number(s) you used.\n\n"
         f"CONTEXT:\n{context}\n\nQUESTION: {question}\n\nANSWER:"
     )
-    result = invoke_claude(prompt, max_tokens=500)
+    result = invoke_claude_logged("retrieval_answer_generation", prompt, max_tokens=500)
     return result["text"], {"input": result["input_tokens"], "output": result["output_tokens"]}
 
 
